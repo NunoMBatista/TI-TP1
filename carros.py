@@ -1,6 +1,5 @@
 import pandas as pd 
 
 data = pd.read_excel('CarDataset.xlsx')
-asdf
-
-sfeprint(data)
+print(data)
+#g3gwrgq35g
