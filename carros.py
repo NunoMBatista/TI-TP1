@@ -20,24 +20,11 @@ for i in range (6):
 plt.tight_layout()
 plt.show()
 
-dataMatrix = dataMatrix.astype("uint16")
+dataMatrix = dataMatrix.astype("uint16") 
+alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
 
-maxi = np.max(dataMatrix)
-mini = np.min(dataMatrix)
-alfa = np.arange(mini,maxi+1,1)
-
-dicio = dict()
-
-#print(alfa)
-print(maxi)
-print(mini)
-
-for i in alfa:
-    dicio[i] = 0
-
-arr = np.reshape(dataMatrix, arr) # falta ver a sintaxa
-
-for i in arr:
-    dicio[i]+=1
-
-print(dicio)
+dataArray = np.reshape(dataMatrix, -1)
+for i in dataArray:
+    alfa[i] += 1
+    
+print(alfa)
