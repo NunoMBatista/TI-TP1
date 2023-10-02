@@ -5,6 +5,8 @@ data = pd.read_excel('CarDataset.xlsx')
 varNames = data.columns.values.tolist()
 print(data)
 dataMatrix = data.to_numpy()
+#sdfs
+
 
 #MPG é o index 6 da lista
 MPG = dataMatrix[:,6]
