@@ -10,7 +10,7 @@ from typing import Union, Any
 
 _log = logging.getLogger(__name__)
 
-
+#amigo
 class _EndOfFileSymbol:
     """
     Internal class for "end of file" symbol to be able
