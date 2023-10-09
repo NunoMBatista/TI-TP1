@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-def ocorrencias (varIndex):
+def ocorrencias (varIndex, alfa):
     contador = alfa
     for i in dataMatrix[:,varIndex]:
         contador[i] += 1
@@ -28,5 +28,6 @@ plt.show()
 
 dataMatrix = dataMatrix.astype("uint16") 
 alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
+ocorrencias (6, alfa)
 
 #Falta entender o que dizer quanto à relação de MPG com as restantes variáveis
