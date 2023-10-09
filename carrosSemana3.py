@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-def entropy(contador, alfa):
+def entropy(target, alfa):
+    contador = ocorrencias(target,alfa)
     menor = min(contador.keys())
     maior = max(contador.keys())
     tamanho = maior - menor
@@ -54,12 +55,11 @@ def ocorrenciasPlot (target, alfa, varIndex, varNames):
     plt.tight_layout()
 
 def binning (target, n):
-    target = dataMatrix[:,varIndex]
     binningN = len(target) // n
     #Dividir weight em binningN subarrays
     binnings = [target[i * n : (i + 1) * n] for i in range(binningN)]
 
-    k = 0
+
     for binning in binnings: 
         count = np.bincount(binning)
         replacement = np.argmax(count)
@@ -76,16 +76,14 @@ dataMatrix = dataMatrix.astype("uint16")
 alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
 
 ocorrenciasPlot(dataMatrix[:,6], alfa, 6, varNames)
-#compareMPG()
+compareMPG()
 
-print(entropy(ocorrencias(6, alfa), alfa))
+print(entropy(np.reshape(dataMatrix, -1), alfa))
 
-weight = binning(6, 40)
-dataMatrix[:,6] = weight
-displacement = binning(2, 5)
-dataMatrix[:,5] = displacement
-horsepower = binning(3, 5)
-dataMatrix[:,3] = horsepower
+weight = binning(dataMatrix[:,6], 40)
+displacement = binning(dataMatrix[:,5], 5)
+horsepower = binning(dataMatrix[:,3], 5)
+
 
 
 plt.show()

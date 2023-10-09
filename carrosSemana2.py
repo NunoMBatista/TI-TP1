@@ -47,7 +47,6 @@ def binning (varIndex, n):
     #Dividir weight em binningN subarrays
     binnings = [target[i * n : (i + 1) * n] for i in range(binningN)]
 
-    k = 0
     for binning in binnings: 
         count = np.bincount(binning)
         replacement = np.argmax(count)
@@ -63,8 +62,8 @@ dataMatrix = data.to_numpy()
 dataMatrix = dataMatrix.astype("uint16") 
 alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
 
-#ocorrenciasPlot(6, alfa)
-#compareMPG()
+ocorrenciasPlot(2, alfa)
+compareMPG()
 
 weight = binning(6, 40)
 displacement = binning(2, 5)
