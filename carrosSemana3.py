@@ -4,6 +4,7 @@ import numpy as np
 import math
 
 def entropy(target, alfa):
+    # H(X) = -ΣP(i)*log2(P(i))
     contador = ocorrencias(target,alfa)
     menor = min(contador.keys())
     maior = max(contador.keys())
@@ -35,7 +36,7 @@ def ocorrencias (target, alfa):
         contador[i] += 1
     return contador
 
-def ocorrenciasPlot (target, alfa, varIndex, varNames):
+def ocorrenciasPlot (target, alfa, name):
     contador = ocorrencias(target, alfa)
     xAxis = [x for x in contador.keys() if contador[x] > 0]
     yAxis = []
@@ -46,7 +47,7 @@ def ocorrenciasPlot (target, alfa, varIndex, varNames):
     x_values = np.arange(len(xAxis))
     plt.figure(2)
     plt.bar(x_values, yAxis, color = "red")
-    plt.xlabel(varNames[varIndex])
+    plt.xlabel(name)
     plt.ylabel("Count")
     # xticks é usado para trocar as labels do x_values pelas do xAxis, tendo assim 
     # uma linha não interrompida de valores em xmas com as labels corretas do xAxis    
@@ -54,37 +55,35 @@ def ocorrenciasPlot (target, alfa, varIndex, varNames):
     plt.axis("tight")
     plt.tight_layout()
 
-def binning (target, n):
-    binningN = len(target) // n
-    #Dividir weight em binningN subarrays
-    binnings = [target[i * n : (i + 1) * n] for i in range(binningN)]
-
-
-    for binning in binnings: 
-        count = np.bincount(binning)
-        replacement = np.argmax(count)
-        binning[True] = replacement
-     
-    target = np.reshape(target, -1)
+def binning (target, n, firstAlfa):
+    lastAlfa = np.max(target)
+    targetAlfa = {key: 0 for key in range(firstAlfa, lastAlfa + 1)}
+    ocorr = ocorrencias(target, targetAlfa)
+    binningN = len(list(ocorr.keys())) // n
+    for i in range(binningN):
+        binn = list(ocorr.keys())[i * n : (i+1) * n]
+        replacement = max(ocorr, key = lambda k: ocorr[k] if k in binn else -1)
+        mask = (target >= np.min(binn)) & (target <= np.max(binn))
+        target[mask] = replacement
+        
     return target
 
 data = pd.read_excel('CarDataset.xlsx')
 varNames = data.columns.values.tolist()
 dataMatrix = data.to_numpy()
-
 dataMatrix = dataMatrix.astype("uint16") 
+
+# Definir alfabeto
 alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
 
-ocorrenciasPlot(dataMatrix[:,6], alfa, 6, varNames)
-compareMPG()
+#compareMPG()
+#ocorrenciasPlot(dataMatrix[:,0], alfa, varNames[0])
+#weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
+#displacement = binning(dataMatrix[:,2], 5, np.min(dataMatrix[:,2]))
+#horsepower = binning(dataMatrix[:,3], 5, np.min(dataMatrix[:,3]))
+#ocorrenciasPlot(weight, alfa, "Weight")
 
 print(entropy(np.reshape(dataMatrix, -1), alfa))
-
-weight = binning(dataMatrix[:,6], 40)
-displacement = binning(dataMatrix[:,5], 5)
-horsepower = binning(dataMatrix[:,3], 5)
-
-
 
 plt.show()
 #Falta entender o que dizer quanto à relação de MPG com as restantes variáveis
