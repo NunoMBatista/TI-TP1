@@ -2,13 +2,29 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import huffmancodec as huffc
+
+def entropyHuff (codec, target, alfa):
+    symbols, lenghts = codec.get_code_len() 
+    ocorr = ocorrencias(target, alfa)
+    
+    tamanho = len(target)
+    entropy = 0
+    for idx in range(len(symbols)):
+        prob = ocorr[symbols[idx]]/tamanho
+        if prob > 0:
+            entropy += prob * lenghts[idx]
+
+    print(entropy)
+    return entropy
 
 def entropy(target, alfa):
     # H(X) = -ΣP(i)*log2(P(i))
     contador = ocorrencias(target,alfa)
     menor = min(contador.keys())
     maior = max(contador.keys())
-    tamanho = maior - menor
+    tamanho = len(target)
+    
     ent = 0
     for i in range(menor, maior):
         prob = contador[i]/tamanho
@@ -65,7 +81,7 @@ def binning (target, n, firstAlfa):
         replacement = max(ocorr, key = lambda k: ocorr[k] if k in binn else -1)
         mask = (target >= np.min(binn)) & (target <= np.max(binn))
         target[mask] = replacement
-        
+
     return target
 
 data = pd.read_excel('CarDataset.xlsx')
@@ -78,12 +94,16 @@ alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
 
 #compareMPG()
 #ocorrenciasPlot(dataMatrix[:,0], alfa, varNames[0])
-#weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
+weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
 #displacement = binning(dataMatrix[:,2], 5, np.min(dataMatrix[:,2]))
 #horsepower = binning(dataMatrix[:,3], 5, np.min(dataMatrix[:,3]))
 #ocorrenciasPlot(weight, alfa, "Weight")
 
-print(entropy(np.reshape(dataMatrix, -1), alfa))
 
-plt.show()
-#Falta entender o que dizer quanto à relação de MPG com as restantes variáveis
+for i in range (6):     
+    print("normal", entropy(dataMatrix[:,i], alfa))
+
+    #codec = huffc.HuffmanCodec.from_data(dataMatrix[:,i]) 
+    #print("huffman", entropyHuff(codec, dataMatrix[:,i], alfa))    
+
+#plt.show()
