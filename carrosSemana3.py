@@ -4,25 +4,26 @@ import numpy as np
 import math
 import huffmancodec as huffc
 
-def entropyHuff (codec, target, alfa):
-    symbols, lenghts = codec.get_code_len() 
+def entropyHuff (target, alfa):
+    codec = huffc.HuffmanCodec.from_data(target) 
+    symbols, lenghts = codec.get_code_len()
+
     ocorr = ocorrencias(target, alfa)
-    
     tamanho = len(target)
     entropy = 0
     for idx in range(len(symbols)):
         prob = ocorr[symbols[idx]]/tamanho
-        if prob > 0:
-            entropy += prob * lenghts[idx]
-
-    print(entropy)
+        entropy += prob * lenghts[idx]
     return entropy
 
 def entropy(target, alfa):
     # H(X) = -ΣP(i)*log2(P(i))
+
+    return math.log2(np.max(target) - np.min(target))
+
     contador = ocorrencias(target,alfa)
-    menor = min(contador.keys())
-    maior = max(contador.keys())
+    menor = min(target)
+    maior = max(target)
     tamanho = len(target)
     
     ent = 0
@@ -94,16 +95,19 @@ alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
 
 #compareMPG()
 #ocorrenciasPlot(dataMatrix[:,0], alfa, varNames[0])
-weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
+#weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
 #displacement = binning(dataMatrix[:,2], 5, np.min(dataMatrix[:,2]))
 #horsepower = binning(dataMatrix[:,3], 5, np.min(dataMatrix[:,3]))
 #ocorrenciasPlot(weight, alfa, "Weight")
+ 
+for i in range(6):
+    print("normal", math.log2(np.max(dataMatrix[:,i]) - np.min(dataMatrix[:,i])))
+    alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
+    print("huffman", entropyHuff(dataMatrix[:,i], alfa)) 
 
+alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
+print("normal", entropy(np.reshape(dataMatrix, -1), alfa))
+print("huffman", entropyHuff(np.reshape(dataMatrix, -1), alfa)) 
 
-for i in range (6):     
-    print("normal", entropy(dataMatrix[:,i], alfa))
-
-    #codec = huffc.HuffmanCodec.from_data(dataMatrix[:,i]) 
-    #print("huffman", entropyHuff(codec, dataMatrix[:,i], alfa))    
 
 #plt.show()
