@@ -19,8 +19,6 @@ def entropyHuff (target, alfa):
 def entropy(target, alfa):
     # H(X) = -ΣP(i)*log2(P(i))
 
-    return math.log2(np.max(target) - np.min(target))
-
     contador = ocorrencias(target,alfa)
     menor = min(target)
     maior = max(target)
@@ -34,7 +32,7 @@ def entropy(target, alfa):
             ent += prob * math.log2(prob)
     return -ent
 
-def compareMPG():
+def compareMPG(dataMatrix, varNames):
     #MPG é o index 6 da lista
     MPG = dataMatrix[:,6]
 
@@ -48,7 +46,7 @@ def compareMPG():
     plt.tight_layout()
 
 def ocorrencias (target, alfa):
-    contador = alfa
+    contador = alfa.copy()
     for i in target:
         contador[i] += 1
     return contador
@@ -93,7 +91,7 @@ dataMatrix = dataMatrix.astype("uint16")
 # Definir alfabeto
 alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
 
-#compareMPG()
+#compareMPG(dataMatrix, varNames)
 #ocorrenciasPlot(dataMatrix[:,0], alfa, varNames[0])
 #weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
 #displacement = binning(dataMatrix[:,2], 5, np.min(dataMatrix[:,2]))
@@ -101,13 +99,7 @@ alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
 #ocorrenciasPlot(weight, alfa, "Weight")
  
 for i in range(6):
-    print("normal", math.log2(np.max(dataMatrix[:,i]) - np.min(dataMatrix[:,i])))
-    alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
+    print("normal", entropy(dataMatrix[:,i], alfa))
     print("huffman", entropyHuff(dataMatrix[:,i], alfa)) 
-
-alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
-print("normal", entropy(np.reshape(dataMatrix, -1), alfa))
-print("huffman", entropyHuff(np.reshape(dataMatrix, -1), alfa)) 
-
 
 #plt.show()
