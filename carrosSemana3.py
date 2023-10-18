@@ -56,15 +56,14 @@ def ocorrenciasPlot (target, alfa, name):
     xAxis = [x for x in contador.keys() if contador[x] > 0]
     yAxis = []
     for i in xAxis:
-        yAxis.append(contador[i])
-        
+        yAxis.append(contador[i]) 
     # O x_values é uma linha de valores para o eixo X sem espaços vazios
     x_values = np.arange(len(xAxis))
     plt.figure(2)
     plt.bar(x_values, yAxis, color = "red")
     plt.xlabel(name)
     plt.ylabel("Count")
-    # xticks é usado para trocar as labels do x_values pelas do xAxis, tendo assim 
+    # xticks é usado para   trocar as labels do x_values pelas do xAxis, tendo assim 
     # uma linha não interrompida de valores em xmas com as labels corretas do xAxis    
     plt.xticks(x_values, xAxis)
     plt.axis("tight")
@@ -92,7 +91,7 @@ dataMatrix = dataMatrix.astype("uint16")
 alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
 
 #compareMPG(dataMatrix, varNames)
-#ocorrenciasPlot(dataMatrix[:,0], alfa, varNames[0])
+ocorrenciasPlot(dataMatrix[:,0], alfa, varNames[0])
 #weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
 #displacement = binning(dataMatrix[:,2], 5, np.min(dataMatrix[:,2]))
 #horsepower = binning(dataMatrix[:,3], 5, np.min(dataMatrix[:,3]))
@@ -102,4 +101,4 @@ for i in range(6):
     print("normal", entropy(dataMatrix[:,i], alfa))
     print("huffman", entropyHuff(dataMatrix[:,i], alfa)) 
 
-#plt.show()
+plt.show()
