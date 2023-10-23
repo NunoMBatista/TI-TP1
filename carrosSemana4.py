@@ -45,15 +45,17 @@ def probConj(target1, target2, x, y):
     ocorrPar = [(target1[i], target2[i]) for i in range(size)]
     return ocorrPar.count((x, y))/size
                   
-def entropyHuff (target, alfa, var):
+def entropyHuff (target, alfa):
     codec = huffc.HuffmanCodec.from_data(target) 
     symbols, lenghts = codec.get_code_len()
+
+    print("Variância de Comprimentos:", np.std(lenghts)**2)
 
     ocorr = ocorrencias(target, alfa)   
     tamanho = len(target)
     entropy = 0
     for idx in range(len(symbols)):
-        prob = (ocorr[symbols[idx]] ** max(2*var, 1)) / tamanho
+        prob = ocorr[symbols[idx]]/ tamanho
         entropy += prob * lenghts[idx]
     return entropy
 
@@ -162,7 +164,7 @@ for i in range(6):
     print(varNames[i])
     print("Nº Médio de bits com símbolos equiprováveis:", mediaBits(dataMatrix[:,i], alfa))
     print("Entropia normal:", entropy(dataMatrix[:,i], alfa))
-    huffEntropy = entropyHuff(dataMatrix[:,i], alfa, 0)
+    huffEntropy = entropyHuff(dataMatrix[:,i], alfa)
     print("Entropia de Huffman:", huffEntropy) 
     #print("Relação de " + varNames[i] + " com MPG:", pearson(MPG, dataMatrix[:,i]))
     print("\n\n")
