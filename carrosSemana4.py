@@ -41,7 +41,11 @@ def entropyConj(targetX, targetY, alfa):
     return -ent
     
 def probConj(target1, target2, x, y):
-    ocorrencias = [i for i in range(len(target1)) if target1[i] == x and target2[i] == y]
+    size = len(target1)
+    ocorrPar = [(target1[i], target2[i]) for i in range(size)]
+    return ocorrPar.count((x, y))/size
+        
+    #ocorrencias = [i for i in range(len(target1)) if target1[i] == x and target2[i] == y]
     return len(ocorrencias)/len(target1)
     
                 
