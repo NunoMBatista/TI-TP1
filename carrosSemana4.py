@@ -44,11 +44,7 @@ def probConj(target1, target2, x, y):
     size = len(target1)
     ocorrPar = [(target1[i], target2[i]) for i in range(size)]
     return ocorrPar.count((x, y))/size
-        
-    #ocorrencias = [i for i in range(len(target1)) if target1[i] == x and target2[i] == y]
-    return len(ocorrencias)/len(target1)
-    
-                
+                  
 def entropyHuff (target, alfa, var):
     codec = huffc.HuffmanCodec.from_data(target) 
     symbols, lenghts = codec.get_code_len()
@@ -100,7 +96,7 @@ def ocorrencias (target, alfa):
         contador[i] += 1
     return contador
 
-def ocorrenciasPlot (target, alfa, name):
+def ocorrenciasPlot (target, alfa, name, tickInterval):
     contador = ocorrencias(target, alfa)
     xAxis = [x for x in contador.keys() if contador[x] > 0]
     yAxis = []
@@ -114,7 +110,11 @@ def ocorrenciasPlot (target, alfa, name):
     plt.ylabel("Count")
     # xticks é usado para   trocar as labels do x_values pelas do xAxis, tendo assim 
     # uma linha não interrompida de valores em xmas com as labels corretas do xAxis    
-    plt.xticks(x_values, xAxis)
+    
+    tickPos = np.arange(0, len(xAxis), tickInterval)
+    tickLabels = [xAxis[i] for i in tickPos]
+    
+    plt.xticks(tickPos, tickLabels)
     plt.axis("tight")
     plt.tight_layout()
 
@@ -147,11 +147,11 @@ model = dataMatrix[:,4]
 weight = dataMatrix[:,5]
 
 #compareMPG(dataMatrix, varNames)
-##ocorrenciasPlot(dataMatrix[:,0], alfa, varNames[0])
+#ocorrenciasPlot(dataMatrix[:,5], alfa, varNames[5], 10)
+ocorrenciasPlot(acceleration, alfa, "acceleration", 1)
 #weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
 #displacement = binning(dataMatrix[:,2], 5, np.min(dataMatrix[:,2]))
 #horsepower = binning(dataMatrix[:,3], 5, np.min(dataMatrix[:,3]))
-#ocorrenciasPlot(weight, alfa, "Weight")
 
 MPG = dataMatrix[:,6]
 IMarray = []
@@ -165,16 +165,16 @@ IMarray = []
 #     print("Informação mutua com MPG:", infoMut(dataMatrix[:,i], MPG, alfa))
 #     print("\n\n")
 
-for i in range(6):
-    IMarray.append(infoMut(MPG, dataMatrix[:,i], alfa))
+# for i in range(6):
+#     IMarray.append(infoMut(MPG, dataMatrix[:,i], alfa))
 
-MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
-print(MPGpred)
-MPGpred = -5.5241 - 0.146 * 0 - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
-print(MPGpred)
-MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * 0
-print(MPGpred)
+# MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
+# print(MPGpred)
+# MPGpred = -5.5241 - 0.146 * 0 - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
+# print(MPGpred)
+# MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * 0
+# print(MPGpred)
 
-# plt.show()
+plt.show()
 
 #CALCULAR VARIÂNCIA NO EXERCÍCIO 8
