@@ -7,30 +7,31 @@ import huffmancodec as huffc
 def pearson(MPG, target):
     return np.corrcoef(target, MPG)[0][1]
 
-def infoMut(target, MPG, alfa):
-    tamanhoMPG = len(MPG)
-    ocorrMPG = ocorrencias(MPG, alfa)
-    
-    tamanhoTarget = len(target)
-    ocorrTarget = ocorrencias(target, alfa)
-    
+def infoMut(target, MPG, alfa):    
     entropyMPG = entropy(MPG, alfa)
     entropyTarget = entropy(target, alfa)
     
     return entropyMPG + entropyTarget - entropyConj(target, MPG, alfa)
-    
 
 def entropyConj(targetX, targetY, alfa):
-    ocorrX = ocorrencias(targetX, alfa)
-    ocorrY = ocorrencias(targetY, alfa)
-    
-    menorX = min(targetX)
-    maiorX = max(targetX)
-    
-    menorY = min(targetY)
-    maiorY = max(targetY)
+    ocorrXY = {(targetX[i], targetY[i]): 0 for i in range(len(targetX))}
+    for i in range(len(targetX)):
+        ocorrXY[(targetX[i], targetY[i])] += 1
     
     tamanho = len(targetX)
+    probabilidadesXY = [(ocorrXY[(targetX[i], targetY[i])]/tamanho)*math.log2(ocorrXY[(targetX[i], targetY[i])]/tamanho) for i in range(tamanho) if ocorrXY[(targetX[i], targetY[i])] > 0]
+    
+    return sum(probabilidadesXY)
+    
+    for x in range(len(targetX)):
+        for y in range(len(targetX)):
+            if ((targetX[x], targetY[y]) not in ocorrXY.keys()):
+                prob = 0
+            else:
+                prob = ocorrXY[(targetX[x], targetY[y])]/(tamanho**2)
+                probabilidadesXY.append(prob * math.log2(prob))
+                
+    return -sum(probabilidadesXY)
     
     ent = 0
     for x in range(menorX, maiorX):
@@ -47,18 +48,17 @@ def probConj(target1, target2, x, y):
                   
 def entropyHuff (target, alfa):
     codec = huffc.HuffmanCodec.from_data(target) 
-    symbols, lenghts = codec.get_code_len()
+    symbols, lengths = codec.get_code_len()
 
-    print("Variância de Comprimentos:", np.std(lenghts)**2)
+    variancia = np.var(lengths, ddof = 0)    
+    print("Variância de Comprimentos:", variancia)
 
     ocorr = ocorrencias(target, alfa)   
     tamanho = len(target)
-    entropy = 0
-    for idx in range(len(symbols)):
-        prob = ocorr[symbols[idx]]/ tamanho
-        entropy += prob * lenghts[idx]
-    return entropy
 
+    probabilidades = [(ocorr[symbols[x]]/tamanho)*lengths[x] for x in range(len(symbols))];
+    return sum(probabilidades)
+ 
 def entropy(target, alfa):
     # H(X) = -ΣP(i)*log2(P(i))
     contador = ocorrencias(target, alfa)
@@ -66,14 +66,10 @@ def entropy(target, alfa):
     maior = max(target)
     tamanho = len(target)
     
-    ent = 0
-    for i in range(menor, maior):
-        prob = contador[i]/tamanho
-        #log2(0) não é possível
-        if prob > 0:
-            ent += prob * math.log2(prob)
-    return -ent
-
+    probabilidades = [(contador[x]/tamanho)*math.log2(contador[x]/tamanho) for x in range(menor, maior) if contador[x] > 0]
+    
+    return -sum(probabilidades)  
+    
 def mediaBits (target, alfa):
     contador = ocorrencias(target, alfa)
     nAlfa = len([x for x in contador.values() if x > 0])
@@ -119,7 +115,7 @@ def ocorrenciasPlot (target, alfa, name, tickInterval, figura):
     plt.xticks(tickPos, tickLabels)
     plt.axis("tight")
     plt.tight_layout()
-
+    
 def binning (target, n, firstAlfa):
     lastAlfa = np.max(target)
     targetAlfa = {key: 0 for key in range(firstAlfa, lastAlfa + 1)}
@@ -130,13 +126,13 @@ def binning (target, n, firstAlfa):
         replacement = max(ocorr, key = lambda k: ocorr[k] if k in binn else -1)
         mask = (target >= np.min(binn)) & (target <= np.max(binn))
         target[mask] = replacement
-
+        
     return target
 
 data = pd.read_excel('CarDataset.xlsx')
 varNames = data.columns.values.tolist()
 dataMatrix = data.to_numpy()
-dataMatrix = dataMatrix.astype("uint16") 
+dataMatrix = dataMatrix.astype("uint16")
 
 # Definir alfabeto
 alfa = {key: 0 for key in range (np.min(dataMatrix), np.max(dataMatrix) + 1)}
@@ -169,6 +165,7 @@ for i in range(6):
     #print("Relação de " + varNames[i] + " com MPG:", pearson(MPG, dataMatrix[:,i]))
     print("\n\n")
 
+print(infoMut(acceleration, MPG, alfa))
 # for i in range(6):
 #     IMarray.append(infoMut(MPG, dataMatrix[:,i], alfa))
 
@@ -179,6 +176,6 @@ for i in range(6):
 # MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * 0
 # print(MPGpred)
 
-plt.show()
+#plt.show()
 
 #CALCULAR VARIÂNCIA NO EXERCÍCIO 8
