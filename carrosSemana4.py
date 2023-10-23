@@ -96,7 +96,7 @@ def ocorrencias (target, alfa):
         contador[i] += 1
     return contador
 
-def ocorrenciasPlot (target, alfa, name, tickInterval):
+def ocorrenciasPlot (target, alfa, name, tickInterval, figura):
     contador = ocorrencias(target, alfa)
     xAxis = [x for x in contador.keys() if contador[x] > 0]
     yAxis = []
@@ -104,7 +104,7 @@ def ocorrenciasPlot (target, alfa, name, tickInterval):
         yAxis.append(contador[i]) 
     # O x_values é uma linha de valores para o eixo X sem espaços vazios
     x_values = np.arange(len(xAxis))
-    plt.figure(2)
+    plt.figure(figura)
     plt.bar(x_values, yAxis, color = "red")
     plt.xlabel(name)
     plt.ylabel("Count")
@@ -146,24 +146,26 @@ horsepower = dataMatrix[:,3]
 model = dataMatrix[:,4]
 weight = dataMatrix[:,5]
 
-#compareMPG(dataMatrix, varNames)
-#ocorrenciasPlot(dataMatrix[:,5], alfa, varNames[5], 10)
-ocorrenciasPlot(acceleration, alfa, "acceleration", 1)
-#weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
-#displacement = binning(dataMatrix[:,2], 5, np.min(dataMatrix[:,2]))
-#horsepower = binning(dataMatrix[:,3], 5, np.min(dataMatrix[:,3]))
+compareMPG(dataMatrix, varNames)
+
+ocorrenciasPlot(acceleration, alfa, "Acceleration", 1, 2)
+weight = binning(dataMatrix[:,5], 200, np.min(dataMatrix[:,5]))
+ocorrenciasPlot(weight, alfa, "Weight", 1, 3)
+distance = binning(dataMatrix[:,2], 5, np.min(dataMatrix[:,2]))
+ocorrenciasPlot(distance, alfa, "Distance", 5, 4)
+horsepower = binning(dataMatrix[:,3], 5, np.min(dataMatrix[:,3]))
+ocorrenciasPlot(horsepower, alfa, "Horse Power", 1, 5)
 
 MPG = dataMatrix[:,6]
 IMarray = []
-# for i in range(6):
-#     print(varNames[i])
-#     print("Nº Médio de bits com símbolos equiprováveis:", mediaBits(dataMatrix[:,i], alfa))
-#     print("Entropia normal:", entropy(dataMatrix[:,i], alfa))
-#     huffEntropy = entropyHuff(dataMatrix[:,i], alfa, 0)
-#     print("Entropia de Huffman:", huffEntropy) 
-#     print("Relação de " + varNames[i] + " com MPG:", pearson(MPG, dataMatrix[:,i]))
-#     print("Informação mutua com MPG:", infoMut(dataMatrix[:,i], MPG, alfa))
-#     print("\n\n")
+for i in range(6):
+    print(varNames[i])
+    print("Nº Médio de bits com símbolos equiprováveis:", mediaBits(dataMatrix[:,i], alfa))
+    print("Entropia normal:", entropy(dataMatrix[:,i], alfa))
+    huffEntropy = entropyHuff(dataMatrix[:,i], alfa, 0)
+    print("Entropia de Huffman:", huffEntropy) 
+    #print("Relação de " + varNames[i] + " com MPG:", pearson(MPG, dataMatrix[:,i]))
+    print("\n\n")
 
 # for i in range(6):
 #     IMarray.append(infoMut(MPG, dataMatrix[:,i], alfa))
