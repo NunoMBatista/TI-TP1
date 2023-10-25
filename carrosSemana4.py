@@ -15,31 +15,15 @@ def infoMut(target, MPG, alfa):
 
 def entropyConj(targetX, targetY, alfa):
     ocorrXY = {(targetX[i], targetY[i]): 0 for i in range(len(targetX))}
-    for i in range(len(targetX)):
-        ocorrXY[(targetX[i], targetY[i])] += 1
+    targetXY = [(targetX[i], targetY[i]) for i in range(len(targetX))]
     
-    tamanho = len(targetX)
-    probabilidadesXY = [(ocorrXY[(targetX[i], targetY[i])]/tamanho)*math.log2(ocorrXY[(targetX[i], targetY[i])]/tamanho) for i in range(tamanho) if ocorrXY[(targetX[i], targetY[i])] > 0]
+    for i in targetXY:
+        ocorrXY[i] += 1
+
+    tamanho = len(targetX) * len(targetY)
+    probabilidadesXY = [(ocorrXY[i]/tamanho)*math.log2(ocorrXY[i]/tamanho) for i in targetXY]
     
-    return sum(probabilidadesXY)
-    
-    for x in range(len(targetX)):
-        for y in range(len(targetX)):
-            if ((targetX[x], targetY[y]) not in ocorrXY.keys()):
-                prob = 0
-            else:
-                prob = ocorrXY[(targetX[x], targetY[y])]/(tamanho**2)
-                probabilidadesXY.append(prob * math.log2(prob))
-                
     return -sum(probabilidadesXY)
-    
-    ent = 0
-    for x in range(menorX, maiorX):
-        for y in range(menorY, maiorY):
-            probXY = probConj(targetX, targetY, x, y)
-            if probXY > 0:
-                ent += probXY * math.log2(probXY)
-    return -ent
     
 def probConj(target1, target2, x, y):
     size = len(target1)
@@ -56,7 +40,7 @@ def entropyHuff (target, alfa):
     ocorr = ocorrencias(target, alfa)   
     tamanho = len(target)
 
-    probabilidades = [(ocorr[symbols[x]]/tamanho)*lengths[x] for x in range(len(symbols))];
+    probabilidades = [(ocorr[symbols[x]]/tamanho)*lengths[x] for x in range(len(symbols))]
     return sum(probabilidades)
  
 def entropy(target, alfa):
@@ -162,19 +146,19 @@ for i in range(6):
     print("Entropia normal:", entropy(dataMatrix[:,i], alfa))
     huffEntropy = entropyHuff(dataMatrix[:,i], alfa)
     print("Entropia de Huffman:", huffEntropy) 
-    #print("Relação de " + varNames[i] + " com MPG:", pearson(MPG, dataMatrix[:,i]))
+    print("Relação de " + varNames[i] + " com MPG:", pearson(MPG, dataMatrix[:,i]))
     print("\n\n")
 
-print(infoMut(acceleration, MPG, alfa))
-# for i in range(6):
-#     IMarray.append(infoMut(MPG, dataMatrix[:,i], alfa))
+for i in range(6):
+    IMarray.append(infoMut(MPG, dataMatrix[:,i], alfa))
+print(IMarray)
 
-# MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
-# print(MPGpred)
-# MPGpred = -5.5241 - 0.146 * 0 - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
-# print(MPGpred)
-# MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * 0
-# print(MPGpred)
+MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
+print(MPGpred)
+MPGpred = -5.5241 - 0.146 * 0 - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
+print(MPGpred)
+MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * 0
+print(MPGpred)
 
 #plt.show()
 
