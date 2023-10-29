@@ -7,29 +7,23 @@ import huffmancodec as huffc
 def pearson(MPG, target):
     return np.corrcoef(target, MPG)[0][1]
 
-def infoMut(target, MPG, alfa):    
-    entropyMPG = entropy(MPG, alfa)
-    entropyTarget = entropy(target, alfa)
+def infoMut(MPG, target, alfa):    
+    ocorrTarget = ocorrencias(target, alfa)
+    ocorrMPG = ocorrencias(MPG, alfa)
     
-    return entropyMPG + entropyTarget - entropyConj(target, MPG, alfa)
+    ocorrMPGTarget = {(MPG[i], target[i]): 0 for i in range(len(MPG))}
+    MPGTarget = [(MPG[i], target[i]) for i in range(len(MPG))]
+    for i in MPGTarget:
+        ocorrMPGTarget[i] += 1
+    
+    tamanhoTarget = len(target)
+    tamanhoMPGTarget = tamanhoTarget ** 2
 
-def entropyConj(targetX, targetY, alfa):
-    ocorrXY = {(targetX[i], targetY[i]): 0 for i in range(len(targetX))}
-    targetXY = [(targetX[i], targetY[i]) for i in range(len(targetX))]
+    # A informação mútua é dada pela divergência Kullback Leibler de P(MPG, target) e P(MPG)P(Target) = ∑∑P(x, y)log2(P(x, y)/(P(x)*P(y))
+    DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[i,j]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) + (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
     
-    for i in targetXY:
-        ocorrXY[i] += 1
+    return sum(DKL)
 
-    tamanho = len(targetX) * len(targetY)
-    probabilidadesXY = [(ocorrXY[i]/tamanho)*math.log2(ocorrXY[i]/tamanho) for i in targetXY]
-    
-    return -sum(probabilidadesXY)
-    
-def probConj(target1, target2, x, y):
-    size = len(target1)
-    ocorrPar = [(target1[i], target2[i]) for i in range(size)]
-    return ocorrPar.count((x, y))/size
-                  
 def entropyHuff (target, alfa):
     codec = huffc.HuffmanCodec.from_data(target) 
     symbols, lengths = codec.get_code_len()
@@ -141,6 +135,9 @@ horsepower = dataMatrix[:,3]
 model = dataMatrix[:,4]
 weight = dataMatrix[:,5]
 
+
+print("Entropia da matriz inteira antes do binning: ", entropy(np.reshape(dataMatrix, -1), alfa), "\n")
+
 compareMPG(dataMatrix, varNames)
 
 ocorrenciasPlot(acceleration, alfa, "Acceleration", 1, 2)
@@ -167,14 +164,11 @@ for i in range(6):
 print(IMarray)
 
 MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
-print(MPGpred)
+print("Previsão de MPG:", MPGpred)
 MPGpred = -5.5241 - 0.146 * 0 - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
-print(MPGpred)
+print("Previsão de MPG sem a variável de menor MI:", MPGpred)
 MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * 0
-print(MPGpred)
-print(np.average(MPG))
-#print(entropy (np.reshape(dataMatrix, -1)))
+print("Previsão de MPG sem a variável de maior MI:", MPGpred)
+
 
 plt.show()
-
-#CALCULAR VARIÂNCIA NO EXERCÍCIO 8
