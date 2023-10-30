@@ -8,20 +8,33 @@ def pearson(MPG, target):
     return np.corrcoef(target, MPG)[0][1]
 
 def infoMut(MPG, target, alfa):    
-    ocorrTarget = ocorrencias(target, alfa)
-    ocorrMPG = ocorrencias(MPG, alfa)
+    #ocorrTarget = ocorrencias(target, alfa)
+    #ocorrMPG = ocorrencias(MPG, alfa)
+    MPGEntropy = entropy(MPG, alfa)
+    targetEntropy = entropy(target, alfa)
+    tamanho = len(target)
     
-    tamanhoTarget = len(target)    
-    ocorrMPGTarget = {(MPG[i], target[i]): np.where((MPG == MPG[i]) & target == target[i])[0] for i in range(tamanhoTarget)}
-
-    print(ocorrMPGTarget)
-    tamanhoMPGTarget = tamanhoTarget
+    uniqueMPG = np.unique(MPG)
+    uniqueTarget = np.unique(target)
+    probMPGTarget = np.histogram2d(MPG, target, bins=(uniqueMPG.size, uniqueTarget.size))[0] / tamanho
+    MPGTargetEntropy = -np.sum(probMPGTarget * np.log2(probMPGTarget + 1e-10)) #1e-10 impede log2(0)
     
-    # A informação mútua é dada pela divergência Kullback Leibler de P(MPG, target) e P(MPG)P(Target) = ∑∑P(x, y)log2(P(x, y)/(P(x)*P(y))
-    #DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
-    DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget and ocorrMPGTarget[(i, j)] > 0]
+    return MPGEntropy + targetEntropy - MPGTargetEntropy
 
-    return sum(DKL)
+# def infoMut(MPG, target, alfa):    
+#     ocorrTarget = ocorrencias(target, alfa)
+#     ocorrMPG = ocorrencias(MPG, alfa)
+#     MPG = np.array(MPG)
+#     target = np.array(target)
+    
+#     tamanhoTarget = len(target)    
+#     ocorrMPGTarget = {(MPG[i], target[i]): np.sum((MPG == MPG[i]) & (target == target[i])) for i in range(tamanhoTarget)}
+    
+#     # A informação mútua é dada pela divergência Kullback Leibler de P(MPG, target) e P(MPG)P(Target) = ∑∑P(x, y)log2(P(x, y)/(P(x)*P(y))
+#     #DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
+#     DKL = [(ocorrMPGTarget[(MPG[i], target[i])]/tamanhoTarget)*math.log2((ocorrMPGTarget[(MPG[i], target[i])]/tamanhoTarget) / ((ocorrMPG[MPG[i]]/tamanhoTarget) * (ocorrTarget[target[i]]/tamanhoTarget))) for i in range(tamanhoTarget) if ocorrMPGTarget[(MPG[i], target[i])] * ocorrMPG[MPG[i]] * ocorrTarget[target[i]] > 0]
+
+#     return sum(DKL)
 
 def entropyHuff (target, alfa):
     codec = huffc.HuffmanCodec.from_data(target) 
@@ -30,8 +43,8 @@ def entropyHuff (target, alfa):
     ocorr = ocorrencias(target, alfa)   
     tamanho = len(target)
 
-    probabilidades = [(ocorr[symbols[x]]/tamanho)*lengths[x] for x in range(len(symbols))]
-    entropy = sum(probabilidades)
+    probabilidades = np.array([(ocorr[symbols[x]]/tamanho)*lengths[x] for x in range(len(symbols))])
+    entropy = np.sum(probabilidades)
     
     variancia = var(target, symbols, lengths, entropy, ocorr)   
     print("Variância de Comprimentos:", variancia)
@@ -108,27 +121,20 @@ def ocorrenciasPlot (target, alfa, name, tickInterval, figura):
     
 def binning (target, n, firstAlfa):
     lastAlfa = np.max(target)
-    targetAlfa = {key: 0 for key in range(firstAlfa, lastAlfa + 1)}
+    targetAlfa = {key: 0 for key in range(0, lastAlfa + 1)}
     ocorr = ocorrencias(target, targetAlfa)
-    binningN = len(list(ocorr.keys())) // n
+    binningN = math.ceil(len(list(ocorr.keys())) / n)
     print(len(list(ocorr.keys())), binningN)
     for i in range(binningN):
         binn = list(ocorr.keys())[i * n : ((i+1) * n)]
         replacement = max(ocorr, key = lambda k: ocorr[k] if k in binn else -1)
         mask = (target >= np.min(binn)) & (target <= np.max(binn))
         target[mask] = replacement
-    #última parte do alfabeto
-    
-    if((len(list(ocorr.keys()))/n) % 1 != 0):
-        binn = list(ocorr.keys())[(binningN*n):]
-        replacement = max(ocorr, key = lambda k: ocorr[k] if k in binn else -1)
-        mask = (target >= np.min(binn)) & (target <= np.max(binn))
-        target[mask] = replacement
-
     return target
 
 def MAE (MPG, target):
     target = np.array(target)
+    MPG = np.array(MPG)
     return np.mean(np.abs(MPG-target))
 
 data = pd.read_excel('CarDataset.xlsx')
@@ -173,16 +179,17 @@ for i in range(7):
 
 IMarray = []
 for i in range(6):
-    IMarray.append((infoMut(MPG, dataMatrixBinn[i], alfa)))
+    IMarray.append(infoMut(MPG, dataMatrixBinn[i], alfa))
 print(IMarray)
-
 
 MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
 print("Erro de MPGpred com todas as variáveis: ", MAE(MPG, MPGpred))
-MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * 0 + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
-print("Erro de MPGpred sem variável de maior MI: ", MAE(MPG, MPGpred))
+
 MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * 0 for i in range(len(MPG))]
+print("Erro de MPGpred sem variável de maior MI: ", MAE(MPG, MPGpred))
+
+MPGpred = [-5.5241 - 0.146 * 0 - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
 print("Erro de MPGpred sem variável de menor MI: ", MAE(MPG, MPGpred))
 
-#plt.show()
+plt.show()
     
