@@ -12,17 +12,14 @@ def infoMut(MPG, target, alfa):
     ocorrMPG = ocorrencias(MPG, alfa)
     
     tamanhoTarget = len(target)    
-    ocorrMPGTarget = {(MPG[i], target[i]): 0 for i in range(tamanhoTarget)}
+    ocorrMPGTarget = {(MPG[i], target[i]): np.where((MPG == MPG[i]) & target == target[i])[0] for i in range(tamanhoTarget)}
 
-    for i in range(len(MPG)):
-        ocorrMPGTarget[(MPG[i], target[i])] += 1
-
-    tamanhoMPGTarget = sum(list(ocorrMPGTarget.values()))
-    #tamanhoMPGTarget = tamanhoTarget
+    print(ocorrMPGTarget)
+    tamanhoMPGTarget = tamanhoTarget
     
     # A informação mútua é dada pela divergência Kullback Leibler de P(MPG, target) e P(MPG)P(Target) = ∑∑P(x, y)log2(P(x, y)/(P(x)*P(y))
     #DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
-    DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
+    DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget and ocorrMPGTarget[(i, j)] > 0]
 
     return sum(DKL)
 
