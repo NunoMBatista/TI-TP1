@@ -22,10 +22,10 @@ def infoMut(MPG, target, alfa):
         ocorrMPGTarget[(MPG[i], target[i])] += 1
 
     tamanhoTarget = len(target)
-    tamanhoMPGTarget = len(list(ocorrMPGTarget.keys()))
-    print(list(ocorrMPGTarget.keys()))
-    print(tamanhoTarget)
-    print(tamanhoTarget**2, tamanhoMPGTarget)
+    tamanhoMPGTarget = len(list(ocorrMPGTarget.keys())) **2
+    # print(list(ocorrMPGTarget.keys()))
+    # print(tamanhoTarget)
+    # print(tamanhoTarget**2, tamanhoMPGTarget)
 
     # A informação mútua é dada pela divergência Kullback Leibler de P(MPG, target) e P(MPG)P(Target) = ∑∑P(x, y)log2(P(x, y)/(P(x)*P(y))
     #DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
