@@ -11,21 +11,18 @@ def infoMut(MPG, target, alfa):
     ocorrTarget = ocorrencias(target, alfa)
     ocorrMPG = ocorrencias(MPG, alfa)
     
-    tamanhoTarget = len(target)
-    
-    ocorrMPGTarget = {(MPG[i], target[j]): 0 for i in range(tamanhoTarget)}
+    tamanhoTarget = len(target)    
+    ocorrMPGTarget = {(MPG[i], target[i]): 0 for i in range(tamanhoTarget)}
 
     for i in range(len(MPG)):
         ocorrMPGTarget[(MPG[i], target[i])] += 1
 
     tamanhoMPGTarget = sum(list(ocorrMPGTarget.values()))
-    # print(list(ocorrMPGTarget.keys()))
-    # print(tamanhoTarget)
-    # print(tamanhoTarget**2, tamanhoMPGTarget)
-
+    tamanhoMPGTarget = tamanhoTarget
+   
     # A informação mútua é dada pela divergência Kullback Leibler de P(MPG, target) e P(MPG)P(Target) = ∑∑P(x, y)log2(P(x, y)/(P(x)*P(y))
     #DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
-    DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if ocorrMPGTarget[(i, j)] > 0]
+    DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
 
     return sum(DKL)
 
@@ -193,9 +190,9 @@ print(IMarray)
 MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
 print("Erro de MPGpred com todas as variáveis: ", MAE(MPG, MPGpred))
 MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * 0 + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
-print("Erro de MPGpred sem variável de menor MI: ", MAE(MPG, MPGpred))
-MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * 0 for i in range(len(MPG))]
 print("Erro de MPGpred sem variável de maior MI: ", MAE(MPG, MPGpred))
+MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * 0 for i in range(len(MPG))]
+print("Erro de MPGpred sem variável de menor MI: ", MAE(MPG, MPGpred))
 
 #plt.show()
     
