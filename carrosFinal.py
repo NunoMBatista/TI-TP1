@@ -11,18 +11,14 @@ def infoMut(MPG, target, alfa):
     ocorrTarget = ocorrencias(target, alfa)
     ocorrMPG = ocorrencias(MPG, alfa)
     
-    ocorrMPGTarget = {(i, j): 0 for i in MPG for j in target}
-    #MPGTarget = [(MPG[i], target[i]) for i in range(len(MPG))]
+    tamanhoTarget = len(target)
     
-    # for i in MPG:
-    #     for j in target:
-    #         ocorrMPGTarget[(i, j)] += 1
+    ocorrMPGTarget = {(MPG[i], target[j]): 0 for i in range(tamanhoTarget)}
 
     for i in range(len(MPG)):
         ocorrMPGTarget[(MPG[i], target[i])] += 1
 
-    tamanhoTarget = len(target)
-    tamanhoMPGTarget = len(list(ocorrMPGTarget.keys())) **2
+    tamanhoMPGTarget = sum(list(ocorrMPGTarget.values()))
     # print(list(ocorrMPGTarget.keys()))
     # print(tamanhoTarget)
     # print(tamanhoTarget**2, tamanhoMPGTarget)
