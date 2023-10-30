@@ -18,8 +18,8 @@ def infoMut(MPG, target, alfa):
         ocorrMPGTarget[(MPG[i], target[i])] += 1
 
     tamanhoMPGTarget = sum(list(ocorrMPGTarget.values()))
-    tamanhoMPGTarget = tamanhoTarget
-   
+    #tamanhoMPGTarget = tamanhoTarget
+    
     # A informação mútua é dada pela divergência Kullback Leibler de P(MPG, target) e P(MPG)P(Target) = ∑∑P(x, y)log2(P(x, y)/(P(x)*P(y))
     #DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
     DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
@@ -179,14 +179,7 @@ for i in range(6):
     IMarray.append((infoMut(MPG, dataMatrixBinn[i], alfa)))
 print(IMarray)
 
-# MPGavg = np.average(MPG)
-# MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
-# print("Previsão de MPG com todas as variáveis:", MPGpred, "erro de: ", MPGavg-MPGpred)
-# MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * 0 + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * IMarray[5]
-# print("Previsão de MPG sem a variável de menor MI:", MPGpred, "erro de: ", MPGavg-MPGpred)
-# MPGpred = -5.5241 - 0.146 * IMarray[0] - 0.4909 * IMarray[1] + 0.0026 * IMarray[2] - 0.0045 * IMarray[3] + 0.6725 * IMarray[4] - 0.0059 * 0
-# print("Previsão de MPG sem a variável de maior MI:", MPGpred, "erro de: ", MPGavg-MPGpred)
-#print("MPG REAL: ", MPGavg)
+
 MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
 print("Erro de MPGpred com todas as variáveis: ", MAE(MPG, MPGpred))
 MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * 0 + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
