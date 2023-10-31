@@ -16,9 +16,15 @@ def infoMut(MPG, target, alfa):
     
     uniqueMPG = np.unique(MPG)
     uniqueTarget = np.unique(target)
-    probMPGTarget = np.histogram2d(MPG, target, bins=(uniqueMPG.size, uniqueTarget.size))[0] / tamanho
-    MPGTargetEntropy = -np.sum(probMPGTarget * np.log2(probMPGTarget + 1e-15)) #1e-10 impede log2(0)
+    uniqueMPG = np.max(MPG) - np.min(MPG)
+    uniqueTarget = np.max(target) - np.min(target)
+    probMPGTarget = np.histogram2d(MPG, target, bins=(uniqueMPG, uniqueTarget))[0] / tamanho
     
+    nonzeroIdx = probMPGTarget != 0
+    probMPGTarget = probMPGTarget[nonzeroIdx]
+    
+    MPGTargetEntropy = -np.sum(probMPGTarget * np.log2(probMPGTarget))
+        
     return MPGEntropy + targetEntropy - MPGTargetEntropy
 
 # def infoMut(MPG, target, alfa):    
@@ -174,23 +180,23 @@ print(IMarray)
 
 for i in range(7):
     print(varNames[i])
-    print("Nº Médio de bits com símbolos equiprováveis:", mediaBits(dataMatrix[:,i], alfa))
+    print("Nº Médio de bits com símbolos equiprováveis:", mediaBits(dataMatrixBinn[i], alfa))
     #print("Entropia normal antes do binning:", entropy(dataMatrix[:,i], alfa))
     print("Entropia normal após binning:", entropy(dataMatrixBinn[i], alfa))
     #print("Entropia de Huffman antes do binning:", entropyHuff(dataMatrix[:,i], alfa)) 
     print("Entropia de Huffman após binning:", entropyHuff(dataMatrixBinn[i], alfa)) 
-    print("Relação de " + varNames[i] + " com MPG:", pearson(MPG, dataMatrix[:,i]))
+    print("Relação de " + varNames[i] + " com MPG:", pearson(MPG, dataMatrixBinn[i]))
     print("Informação mútua com MPG: ", IMarray[i])
     print("\n\n")
 
 MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
-print("Erro de MPGpred com todas as variáveis: ", MAE(MPG, MPGpred))
+print("Erro de MPGpred com todas as variáveis: ", MAE(MPG, MPGpred), "MPG previsto: ", np.average(MPGpred))
 
 MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * 0 for i in range(len(MPG))]
-print("Erro de MPGpred sem variável de maior MI: ", MAE(MPG, MPGpred))
+print("Erro de MPGpred sem variável de maior MI: ", MAE(MPG, MPGpred), "MPG previsto: ", np.average(MPGpred))
 
 MPGpred = [-5.5241 - 0.146 * 0 - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
-print("Erro de MPGpred sem variável de menor MI: ", MAE(MPG, MPGpred))
+print("Erro de MPGpred sem variável de menor MI: ", MAE(MPG, MPGpred), "MPG previsto: ", np.average(MPGpred))
 
 #plt.show()
     
