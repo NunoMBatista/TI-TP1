@@ -8,39 +8,21 @@ def pearson(MPG, target):
     return np.corrcoef(target, MPG)[0][1]
 
 def infoMut(MPG, target, alfa):    
-    #ocorrTarget = ocorrencias(target, alfa)
-    #ocorrMPG = ocorrencias(MPG, alfa)
+
     MPGEntropy = entropy(MPG, alfa)
     targetEntropy = entropy(target, alfa)
     tamanho = len(target)
     
-    uniqueMPG = np.unique(MPG)
-    uniqueTarget = np.unique(target)
-    uniqueMPG = np.max(MPG) - np.min(MPG)
-    uniqueTarget = np.max(target) - np.min(target)
-    probMPGTarget = np.histogram2d(MPG, target, bins=(uniqueMPG, uniqueTarget))[0] / tamanho
+    alfaLenMPG = np.max(MPG) - np.min(MPG)
+    alfaLenTarget = np.max(target) - np.min(target)
+    probMPGTarget = np.histogram2d(MPG, target, bins=(alfaLenMPG, alfaLenTarget+10))[0] / tamanho
     
-    nonzeroIdx = probMPGTarget != 0
-    probMPGTarget = probMPGTarget[nonzeroIdx]
+    nonZeroIdx = probMPGTarget != 0
+    probMPGTarget = probMPGTarget[nonZeroIdx]
     
     MPGTargetEntropy = -np.sum(probMPGTarget * np.log2(probMPGTarget))
         
     return MPGEntropy + targetEntropy - MPGTargetEntropy
-
-# def infoMut(MPG, target, alfa):    
-#     ocorrTarget = ocorrencias(target, alfa)
-#     ocorrMPG = ocorrencias(MPG, alfa)
-#     MPG = np.array(MPG)
-#     target = np.array(target)
-    
-#     tamanhoTarget = len(target)    
-#     ocorrMPGTarget = {(MPG[i], target[i]): np.sum((MPG == MPG[i]) & (target == target[i])) for i in range(tamanhoTarget)}
-    
-#     # A informação mútua é dada pela divergência Kullback Leibler de P(MPG, target) e P(MPG)P(Target) = ∑∑P(x, y)log2(P(x, y)/(P(x)*P(y))
-#     #DKL = [(ocorrMPGTarget[(i, j)]/tamanhoMPGTarget)*math.log2((ocorrMPGTarget[(i, j)]/tamanhoMPGTarget) / ((ocorrMPG[i]/tamanhoTarget) * (ocorrTarget[j]/tamanhoTarget))) for i in MPG for j in target if (i, j) in ocorrMPGTarget]
-#     DKL = [(ocorrMPGTarget[(MPG[i], target[i])]/tamanhoTarget)*math.log2((ocorrMPGTarget[(MPG[i], target[i])]/tamanhoTarget) / ((ocorrMPG[MPG[i]]/tamanhoTarget) * (ocorrTarget[target[i]]/tamanhoTarget))) for i in range(tamanhoTarget) if ocorrMPGTarget[(MPG[i], target[i])] * ocorrMPG[MPG[i]] * ocorrTarget[target[i]] > 0]
-
-#     return sum(DKL)
 
 def entropyHuff (target, alfa):
     codec = huffc.HuffmanCodec.from_data(target) 
@@ -62,7 +44,6 @@ def var(target, symbols, lengths, entropy, ocorr):
     variance = 0
     for idx in range(len(symbols)):
         prob = ocorr[symbols[idx]] / tamanho
-        # Calcula a diferença quadrática ponderada entre o comprimento e a entropia
         variance += prob * (lengths[idx] - entropy) ** 2
     return variance
 
@@ -130,9 +111,9 @@ def binning (target, n, firstAlfa):
     targetAlfa = {key: 0 for key in range(0, lastAlfa + 1)}
     ocorr = ocorrencias(target, targetAlfa)
     binningN = math.ceil(len(list(ocorr.keys())) / n)
-    print(len(list(ocorr.keys())), binningN)
     for i in range(binningN):
         binn = list(ocorr.keys())[i * n : ((i+1) * n)]
+        # A função lambda retorna as ocorrências de k se k estiver no intervalo de binn, caso k não esteja nesse intervalo, retorna -1
         replacement = max(ocorr, key = lambda k: ocorr[k] if k in binn else -1)
         mask = (target >= np.min(binn)) & (target <= np.max(binn))
         target[mask] = replacement
@@ -142,6 +123,14 @@ def MAE (MPG, target):
     target = np.array(target)
     MPG = np.array(MPG)
     return np.mean(np.abs(MPG-target))
+
+def predictMPG (dataM, remove):
+    rowSize = len(dataM[0])
+    for i in remove: 
+        dataM[i] = [0 for i in range(rowSize)]
+    MPGpred = [-5.5241 - 0.146 * dataM[0][i] - 0.4909 * dataM[1][i] + 0.0026 * dataM[2][i] - 0.0045 * dataM[3][i] + 0.6725 * dataM[4][i] - 0.0059 * dataM[5][i] for i in range(len(MPG))]
+    return MPGpred
+        
 
 data = pd.read_excel('CarDataset.xlsx')
 varNames = data.columns.values.tolist()
@@ -153,7 +142,7 @@ alfa = {key: 0 for key in range(0, 65535)} #todos os Uint16
 
 acceleration = np.copy(dataMatrix[:,0])
 cylinders = np.copy(dataMatrix[:,1])
-distance = np.copy(dataMatrix[:,2])
+displacement = np.copy(dataMatrix[:,2])
 horsepower = np.copy(dataMatrix[:,3])
 model = np.copy(dataMatrix[:,4])
 weight = np.copy(dataMatrix[:,5])
@@ -165,17 +154,15 @@ ocorrenciasPlot(acceleration, alfa, "Acceleration", 1, 2)
 
 weight = binning(weight, 40, np.min(weight))
 ocorrenciasPlot(weight, alfa, "Weight", 7, 3)
-distance = binning(distance, 5, np.min(distance))
-ocorrenciasPlot(distance, alfa, "Distance", 5, 4)
+displacement = binning(displacement, 5, np.min(displacement))
+ocorrenciasPlot(displacement, alfa, "displacement", 5, 4)
 horsepower = binning(horsepower, 5, np.min(horsepower))
 ocorrenciasPlot(horsepower, alfa, "Horse Power", 3, 5)
 
 MPG = np.copy(dataMatrix[:,6])
-dataMatrixBinn = [acceleration, cylinders, distance, horsepower, model, weight, MPG]
+dataMatrixBinn = [acceleration, cylinders, displacement, horsepower, model, weight, MPG]
 
-IMarray = []
-for i in range(7):
-    IMarray.append(infoMut(MPG, dataMatrixBinn[i], alfa))
+IMarray = [infoMut(MPG, dataMatrixBinn[i], alfa) for i in range(7)]
 print(IMarray)
 
 for i in range(7):
@@ -189,14 +176,20 @@ for i in range(7):
     print("Informação mútua com MPG: ", IMarray[i])
     print("\n\n")
 
-MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
+print("Entropia da matriz inteira depois do binning: ", entropy(np.reshape(dataMatrixBinn, -1), alfa), "\n")
+
+
+#MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * displacement[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
+MPGpred = predictMPG(dataMatrixBinn.copy(), [])
 print("Erro de MPGpred com todas as variáveis: ", MAE(MPG, MPGpred), "MPG previsto: ", np.average(MPGpred))
 
-MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * 0 for i in range(len(MPG))]
+#MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * displacement[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * 0 for i in range(len(MPG))]
+MPGpred = predictMPG(dataMatrixBinn.copy(), [5])
 print("Erro de MPGpred sem variável de maior MI: ", MAE(MPG, MPGpred), "MPG previsto: ", np.average(MPGpred))
 
-MPGpred = [-5.5241 - 0.146 * 0 - 0.4909 * cylinders[i] + 0.0026 * distance[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
+#MPGpred = [-5.5241 - 0.146 * 0 - 0.4909 * cylinders[i] + 0.0026 * displacement[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
+MPGpred = predictMPG(dataMatrixBinn.copy(), [0])
 print("Erro de MPGpred sem variável de menor MI: ", MAE(MPG, MPGpred), "MPG previsto: ", np.average(MPGpred))
 
-#plt.show()
+plt.show()
     
