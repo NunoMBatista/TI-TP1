@@ -7,7 +7,7 @@ import huffmancodec as huffc
 def pearson(MPG, target):
     return np.corrcoef(target, MPG)[0][1]
 
-def infoMut(MPG, target, alfa):    
+def infoMut(MPG, target, alfa): 
 
     MPGEntropy = entropy(MPG, alfa)
     targetEntropy = entropy(target, alfa)
@@ -128,7 +128,8 @@ def predictMPG (dataM, remove):
     rowSize = len(dataM[0])
     for i in remove: 
         dataM[i] = [0 for i in range(rowSize)]
-    MPGpred = [-5.5241 - 0.146 * dataM[0][i] - 0.4909 * dataM[1][i] + 0.0026 * dataM[2][i] - 0.0045 * dataM[3][i] + 0.6725 * dataM[4][i] - 0.0059 * dataM[5][i] for i in range(len(MPG))]
+    MPGpred = [-5.5241 - 0.146 * dataM[0][i] - 0.4909 * dataM[1][i] + 0.0026 * dataM[2][i] - 0.0045 * dataM[3][i] + 0.6725 * dataM[4][i] - 0.0059 * dataM[5][i] for i in range(rowSize)]
+        
     return MPGpred
         
 
@@ -147,7 +148,6 @@ horsepower = np.copy(dataMatrix[:,3])
 model = np.copy(dataMatrix[:,4])
 weight = np.copy(dataMatrix[:,5])
 
-print("Entropia da matriz inteira antes do binning: ", entropy(np.reshape(dataMatrix, -1), alfa), "\n")
 
 compareMPG(dataMatrix, varNames)
 ocorrenciasPlot(acceleration, alfa, "Acceleration", 1, 2)
@@ -163,33 +163,28 @@ MPG = np.copy(dataMatrix[:,6])
 dataMatrixBinn = [acceleration, cylinders, displacement, horsepower, model, weight, MPG]
 
 IMarray = [infoMut(MPG, dataMatrixBinn[i], alfa) for i in range(7)]
-print(IMarray)
 
 for i in range(7):
     print(varNames[i])
     print("Nº Médio de bits com símbolos equiprováveis:", mediaBits(dataMatrixBinn[i], alfa))
     #print("Entropia normal antes do binning:", entropy(dataMatrix[:,i], alfa))
     print("Entropia normal após binning:", entropy(dataMatrixBinn[i], alfa))
-    #print("Entropia de Huffman antes do binning:", entropyHuff(dataMatrix[:,i], alfa)) 
+    #print("Entropia de Huffman antes do binning:", entropyHuff(dataMatrix[:,i], alfa))
     print("Entropia de Huffman após binning:", entropyHuff(dataMatrixBinn[i], alfa)) 
     print("Relação de " + varNames[i] + " com MPG:", pearson(MPG, dataMatrixBinn[i]))
     print("Informação mútua com MPG: ", IMarray[i])
     print("\n\n")
 
+print("Entropia da matriz inteira antes do binning: ", entropy(np.reshape(dataMatrix, -1), alfa), "\n")
 print("Entropia da matriz inteira depois do binning: ", entropy(np.reshape(dataMatrixBinn, -1), alfa), "\n")
 
-
-#MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * displacement[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
 MPGpred = predictMPG(dataMatrixBinn.copy(), [])
 print("Erro de MPGpred com todas as variáveis: ", MAE(MPG, MPGpred), "MPG previsto: ", np.average(MPGpred))
 
-#MPGpred = [-5.5241 - 0.146 * acceleration[i] - 0.4909 * cylinders[i] + 0.0026 * displacement[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * 0 for i in range(len(MPG))]
 MPGpred = predictMPG(dataMatrixBinn.copy(), [5])
 print("Erro de MPGpred sem variável de maior MI: ", MAE(MPG, MPGpred), "MPG previsto: ", np.average(MPGpred))
 
-#MPGpred = [-5.5241 - 0.146 * 0 - 0.4909 * cylinders[i] + 0.0026 * displacement[i] - 0.0045 * horsepower[i] + 0.6725 * model[i] - 0.0059 * weight[i] for i in range(len(MPG))]
 MPGpred = predictMPG(dataMatrixBinn.copy(), [0])
 print("Erro de MPGpred sem variável de menor MI: ", MAE(MPG, MPGpred), "MPG previsto: ", np.average(MPGpred))
 
-plt.show()
-    
+#plt.show()
